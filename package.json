@@ -1,0 +1,43 @@
+{
+  "name": "row-bot",
+  "version": "0.5.0",
+  "description": "Slackbot that manages several role-bots based on a google spreadsheet all managed from a meta-google spreadsheet.",
+  "main": "index.js",
+  "engines": {
+    "node": ">=12",
+    "npm": ">=6.14.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MoveOnOrg/rowcal-bot.git"
+  },
+  "keywords": [
+    "tech-roles",
+    "slackbot"
+  ],
+  "author": "Sky Duveen, Bodhi Alarcon, Sophie Waldman",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/MoveOnOrg/rowcal-bot/issues"
+  },
+  "homepage": "https://github.com/MoveOnOrg/rowcal-bot#readme",
+  "dependencies": {
+    "@slack/web-api": "^6.1.0",
+    "google-auth-library": "^6.0.6",
+    "googleapis": "^71.0.0"
+  },
+  "devDependencies": {
+    "claudia": "^5.12.0"
+  },
+  "scripts": {
+    "deploy": "claudia create --region us-west-1 --handler index.handler --deploy-proxy-api;",
+    "destroy": "claudia destroy",
+    "test": "claudia test-lambda",
+    "update": "claudia update"
+  },
+  "files": [
+    "config.json",
+    "sheetbot.js",
+    "metasheet.js"
+  ]
+}

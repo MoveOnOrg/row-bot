@@ -1,0 +1,7 @@
+{
+  "gPrivateKey": "",
+  "clientEmail": "",
+  "spreadsheetId": "",
+  "slackSigningSecret": "",
+  "slackBotUserOAuthToken": "xoxb-REPLACE-ME"
+}
