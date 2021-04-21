@@ -123,7 +123,7 @@ class SheetBot {
 
   async maybeMessage({ algorithm }) {
     const data = await this.getData();
-    const message = data[0][1];
+    const message = this.customCellMessage || data[0][1];
     const HEADERROWS = 2;
     const rows = data.slice(HEADERROWS);
     const bColumnFilter = this.bColumnFilter;
@@ -134,7 +134,7 @@ class SheetBot {
       const row = (algorithms[algorithm] ||
                    algorithms["date_most_recent"])(rows, filter || (row => row[0]));
       if (row && row.length) {
-        console.log('maybeMessage', row, this.userMap);
+        console.log('maybeMessage', row, this.spreadsheetId, this.gid);
         return this.formatMessage(message, row);
       }
     }
@@ -185,6 +185,16 @@ class SheetBot {
         ],
       }
     });
+    if (this.sheetData && this.sheetData.customMessageCell) {
+      const messageCellData = await gapi(this.c.spreadsheets.values, 'get', {
+        spreadsheetId: this.spreadsheetId,
+        majorDimension: 'ROWS',
+        range: this.sheetData.customMessageCell
+      });
+      if (messageCellData.data.values) {
+        this.customCellMessage = messageCellData.data.values[0][0];
+      }
+    }
     // console.log('getData', JSON.stringify(resp, null, 2));
     // talk about burying the data!
     return (resp.data &&

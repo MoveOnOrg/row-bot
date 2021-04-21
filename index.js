@@ -66,18 +66,17 @@ async function handleCronTrigger(ms, event) {
         });
       })
     );
+
     // 1.d: for each message response, if there's something, then send it to the right channel
-    await Promise.all(
-      messages.map((text, i) => (
-        text
-          ? slack.chat.postMessage({
-              text,
-              channel: sheetbots[i].channelId
-            })
-          : Promise.resolve(null)
-      ))
-    );
-    // TODO: maybe cleanup userList
+    for (let i=0; i<messages.length; i++) {
+      const text = messages[i];
+      if (text) {
+        await slack.chat.postMessage({
+          text,
+          channel: sheetbots[i].channelId
+        })
+      }
+    }
   }
   return jres({ sheetbots, messages });
 }
@@ -117,7 +116,7 @@ async function handleSlackEvent(ms, bodyJSON) {
             channelName: channelInfo.channel.name,
             userAdded: userData.user.name
           });
-          console.log('addSheet', sheetUrl, channelId, res);
+          console.log('addSheet', sheetUrl, evt.channel, res);
           await slack.chat.postMessage({
             channel: evt.channel,
             text: `We've added your sheet -- you or an admin can verify that it's setup here: <https://docs.google.com/spreadsheets/d/${config.spreadsheetId}/edit>\nYou can change the algorithm (date_match or date_most_recent) and the schedule there. Please '@' this bot with the people that can appear in the spreadsheet and they will be @'d in the message.`
@@ -176,6 +175,8 @@ async function handleDebugWeb(ms, qs) {
       });
     }
     return jres({ message: sbMessage }); // INSECURE
+  } else if (qs.schedule) {
+    await handleCronTrigger(ms, { schedule: qs.schedule});
   }
   return jres({
     "message": "Hello from Lambda!"

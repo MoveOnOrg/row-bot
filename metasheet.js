@@ -46,7 +46,6 @@ class MetaSheet {
       range: 'UserID Map!A3:B', //sheet!range
       majorDimension: 'ROWS'
     });
-    console.log('loadUserMapping', resp);
     const HEADERROWS = 0; // A3 above starts us on the third row
     const users = {};
     if (resp.data.values) {
@@ -113,7 +112,7 @@ class MetaSheet {
     }
   }
 
-  async addSheet({ sheetUrl, channelId, channelName, schedule, algorithm, bColumnFilter, userAdded }) {
+  async addSheet({ sheetUrl, channelId, channelName, schedule, algorithm, bColumnFilter, customMessageCell, userAdded }) {
     // TODO: avoid duplication
     // TODO: validate sheet (message, 
     const resp = await gapi(this.c.spreadsheets.values, 'append', {
@@ -129,6 +128,7 @@ class MetaSheet {
           schedule || "morning_9amET",
           algorithm || "date_match",
           bColumnFilter || "",
+          customMessageCell || "",
           channelId,
           userAdded
         ]
@@ -155,8 +155,9 @@ class MetaSheet {
           schedule: row[4],
           algorithm: row[5],
           bColumnFilter: row[6],
-          channelId: row[7],
-          userCreated: row[8],
+          customMessageCell: row[7],
+          channelId: row[8],
+          userCreated: row[9],
           row: i
         };
         if (!schedule || schedule == sheetData.schedule) {

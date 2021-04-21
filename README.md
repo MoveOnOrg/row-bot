@@ -36,6 +36,8 @@ In the Metasheet, there are three rows can be modified manually:
   do others in consultation with admins.
 * B-column filter: If there is a value in this column, then only rows with the B-column value will be considered when
   run. If you are running multiple bots -- some daily and some weekly off the same base spreadsheet, this may be useful.
+* Custom message cell (`"sheet!cell"`): The message cell defaults to B1 of the same sheet where the row data is, but you can customize this.
+  Also, useful for making multiple messages off the same row data.
 
 ## Algorithms
 
@@ -62,8 +64,9 @@ This bot is built with Node.js and NPM.  Install by running `npm install` in the
 ## Deployment
 1. Copy `config.json.example` to `config.json` and fill with the appropriate API keys and filepaths.
 2. On the command line, call `npm run deploy`
-3. Add a CloudWatch scheduled event to run the bot on the desired schedule.  The actual contents of the event message will be ignored. (Better to create using AWS web console, there is an issue with duplicate events being created when scheduling using Claudia.js) The JSON input should include a 'schedule' value that will match the schedule column in the metasheet.  E.g. `{ "schedule": "morning_9amET" }`
-4. Go to Slack admin interface
+3. In the Lambda configuration under Asynchronous Invocation, change "Retry attempts" to 0 (default is often 2).
+4. Add a CloudWatch scheduled event to run the bot on the desired schedule.  The actual contents of the event message will be ignored. (Better to create using AWS web console, there is an issue with duplicate events being created when scheduling using Claudia.js) The JSON input should include a 'schedule' value that will match the schedule column in the metasheet.  E.g. `{ "schedule": "morning_9amET" }`
+5. Go to Slack admin interface
    * Create an App. 
    * Name should be 'row-bot'
    * Add `users:read`, `channels:read`, `chat:write` and `app_mentions:read` to OAuth Scopes
