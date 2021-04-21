@@ -83,6 +83,19 @@ To remove from AWS Lambda, call `npm run destroy` on the command line
 
 # Development and Testing
 
+## Code organization
+
+Code is in three files
+
+* `index.js`: this 'ties it all together' and is the sole place where Slack APIs and web access is. Start here.
+  To get a sense of what this app is all about, read the `handleCronTrigger()` code -- the rest of the app
+  is basically to help this trigger run.
+* `metasheet.js`: the file defining the class MetaSheet which handles reading and writing from the metasheet
+  which is basically the app's 'database'.
+* `sheetbot.js`: defines `SheetBot` class and handles reading and parsing individual service sheets ("sheetbots").
+  This file also is where the `algorithms` list is implemented -- to create a new one, simply add it to the
+  dictionary here.
+
 ## Local testing
 On the command line, run `TEST=cron node index.js`.  You may want to use a temporary Slack channel.
 
