@@ -16,7 +16,7 @@ This bot is built with Node.js and NPM.  Install by running `npm install` in the
 # Deployment
 1. Copy `config.json.example` to `config.json` and fill with the appropriate API keys and filepaths.
 2. On the command line, call `npm run deploy`
-3. Add a CloudWatch scheduled event to run the bot on the desired schedule.  The actual contents of the event message will be ignored. (Better to create using AWS web console, there is an issue with duplicate events being created when scheduling using Claudia.js) https://us-west-1.console.aws.amazon.com/events/home?region=us-west-1#/eventbus/default/rules/analytics-roles-bot
+3. Add a CloudWatch scheduled event to run the bot on the desired schedule.  The actual contents of the event message will be ignored. (Better to create using AWS web console, there is an issue with duplicate events being created when scheduling using Claudia.js)
 4. Go to Slack admin interface
    * Create an App. 
    * Name should be 'row-bot'
