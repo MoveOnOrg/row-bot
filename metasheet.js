@@ -101,11 +101,11 @@ class MetaSheet {
       // CLEAR (to remove lower rows)
       await gapi(this.c.spreadsheets.values, 'clear', {
         spreadsheetId: this.spreadsheetId,
-        range: 'UserID Map XX!A3:B2000', //sheet!range
+        range: 'UserID Map!A3:B2000', //sheet!range
       });
       const resp = await gapi(this.c.spreadsheets.values, 'update', {
         spreadsheetId: this.spreadsheetId,
-        range: 'UserID Map XX!A3:B', //sheet!range
+        range: 'UserID Map!A3:B', //sheet!range
         valueInputOption: 'RAW',
         resource: {values: nameValuePairArray}
       });

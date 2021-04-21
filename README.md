@@ -12,6 +12,7 @@ This bot is built with Node.js and NPM.  Install by running `npm install` in the
 # Permissions & Config
 - This bot uses a Google service account to authenticate.  The parameters `clientEmail` and `gPrivateKey` all come from the service account.  The service account needs read access to all spreadsheets used in the bot  but does not need write access (except for the meta-spreadsheet). Be sure to share the spreadsheet with `clientEmail`).
 - `spreadsheetId` is the meta-Google Sheet
+  - Make a copy of this spreadsheet: https://docs.google.com/spreadsheets/d/12i3hIWm51guQhjFtrHpN22nvIUmJRndj1xZqrp3o7xc/edit#gid=0 and add the service account's email address as an editor.
 
 # Deployment
 1. Copy `config.json.example` to `config.json` and fill with the appropriate API keys and filepaths.
@@ -27,6 +28,7 @@ This bot is built with Node.js and NPM.  Install by running `npm install` in the
    * Click 'Bots' and click 'Always show your bot as online'
      * click the Add Bot User button and then Save Changes
    * Click "Install App" and then "Install to Workspace"
+
 
 # Local testing
 On the command line, run `TEST=cron node index.js`.  You may want to use a temporary Slack channel.
