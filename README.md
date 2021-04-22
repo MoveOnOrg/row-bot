@@ -64,7 +64,10 @@ This bot is built with Node.js and NPM.  Install by running `npm install` in the
 ## Deployment
 1. Copy `config.json.example` to `config.json` and fill with the appropriate API keys and filepaths.
 2. On the command line, call `npm run deploy`
-3. In the Lambda configuration under Asynchronous Invocation, change "Retry attempts" to 0 (default is often 2).
+3. Tweak the Lambda configuration in the AWS console in a few places:
+   - Under Asynchronous Invocation, change "Retry attempts" to 0 (default is often 2).
+   - Under Permissions, click the role name (probably "row-bot-executor") and click Attach Policies. Then search for `AWSLambdaRole`. Check the box next to it and click the Attach Policy button
+   - Make sure under General Configuration, Timeout is set to "15 min"
 4. Add a CloudWatch scheduled event to run the bot on the desired schedule.  The actual contents of the event message will be ignored. (Better to create using AWS web console, there is an issue with duplicate events being created when scheduling using Claudia.js) The JSON input should include a 'schedule' value that will match the schedule column in the metasheet.  E.g. `{ "schedule": "morning_9amET" }`
 5. Go to Slack admin interface
    * Create an App. 

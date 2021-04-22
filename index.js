@@ -3,8 +3,10 @@ const config = require('./config.json');
 const { MetaSheet } = require('./metasheet.js');
 const { SheetBot } = require('./sheetbot.js');
 const { WebClient } = require('@slack/web-api');
+const AWS = require('aws-sdk');
 
 const slack = new WebClient(config.slackBotUserOAuthToken || process.env.SLACK_TOKEN);
+const awsLambda = new AWS.Lambda();
 
 // Some code terms:
 // Metasheet: the spreadsheet that has two sheets, one that lists all the 'sub'sheets which
@@ -33,7 +35,24 @@ async function awsHandler(event, context) {
   } else if (event.body) {
     // 2. SLACK EVENT HOOK (event.body) -- a slack event has hit your API
     const bodyJSON = JSON.parse(Buffer.from(event.body, 'base64').toString());
-    return await handleSlackEvent(ms, bodyJSON);
+    // Slack only gives 3 SECONDS for a response
+    // So instead of processing which often takes more than 3 seconds, we invoke
+    // Lambda with the data to be processed and then return a new lambda event immediately.
+    if (process.env.AWS_LAMBDA_FUNCTION_NAME) {
+      await invokeAsyncSlackProcessor(bodyJSON);
+    } else {
+      handleSlackEvent(ms, bodyJSON)
+        .then(d => {
+          console.log('finished handleSlackEvent');
+        });
+    }
+
+    return jres({
+      // needed to install the Slack events API
+      challenge: bodyJSON.challenge || "no challenge in the request"
+    });
+  } else if (event.type === "JOB") {
+    return await handleSlackEvent(ms, event.data);
   } else if (event.queryStringParameters) {
     // 3. DEBUGGING Web GET request with query parameters from API Gateway: (event.queryStringParameters)
     const qs = event.queryStringParameters;
@@ -79,6 +98,20 @@ async function handleCronTrigger(ms, event) {
     }
   }
   return jres({ sheetbots, messages });
+}
+
+async function invokeAsyncSlackProcessor(bodyJSON) {
+  const functionName = process.env.AWS_LAMBDA_FUNCTION_NAME;
+  await awsLambda
+    .invoke({
+      FunctionName: functionName,
+      InvocationType: "Event",
+      Payload: JSON.stringify({
+        type: "JOB",
+        data: bodyJSON
+      })
+    })
+    .promise();
 }
 
 async function handleSlackEvent(ms, bodyJSON) {
@@ -131,16 +164,9 @@ async function handleSlackEvent(ms, bodyJSON) {
       }
     }
   }
-  if (bodyJSON.challenge) {
-    // used to install the Slack events API
-    return jres({
-      challenge: bodyJSON.challenge
-    });
-  } else {
-    return jres({
-      thanks: "hi"
-    });
-  }
+  return jres({
+    challenge: bodyJSON.challenge || "from handleSlackEvent"
+  });
 }
 
 async function handleDebugWeb(ms, qs) {
