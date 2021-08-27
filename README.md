@@ -60,6 +60,13 @@ This bot is built with Node.js and NPM.  Install by running `npm install` in the
 - This bot uses a Google service account to authenticate.  The parameters `clientEmail` and `gPrivateKey` all come from the service account.  The service account needs read access to all spreadsheets used in the bot  but does not need write access (except for the meta-spreadsheet). Be sure to share the spreadsheet with `clientEmail`).
 - `spreadsheetId` is the meta-Google Sheet
   - Make a copy of this spreadsheet: https://docs.google.com/spreadsheets/d/12i3hIWm51guQhjFtrHpN22nvIUmJRndj1xZqrp3o7xc/edit#gid=0 and add the service account's email address as an editor.
+- If your Google Domain setup restricts document access to only your domain, you will need to do some extra steps:
+  1. Enable your service account for "Show Domain-Wide Delegation" (check the box in the [GCP console](https://console.cloud.google.com/projectselector2/iam-admin/serviceaccounts?supportedpurview=project) )
+  2. In your [domain admin console](https://admin.google.com/) go to Security -> API Console -> Manage Domain Wide Delegation
+  3. Add a new API client and copy the "client ID" from the GCP console.
+  4. Add the scopes: https://www.googleapis.com/auth/drive, https://www.googleapis.com/auth/spreadsheets.readonly 
+  5. Create a fake service account, e.g. `my.app.service.account@example.com` (if your domain is example.com)
+  6. Back to rowbot config!  Set `shareEmail` in config.json to your fake service account email -- then make sure that email is the one you use to share all your spreadsheets
 
 ## Deployment
 1. Copy `config.json.example` to `config.json` and fill with the appropriate API keys and filepaths.

@@ -27,7 +27,8 @@ async function awsHandler(event, context) {
   const ms = new MetaSheet({
     spreadsheetId: config.spreadsheetId,
     clientEmail: config.clientEmail,
-    clientPrivateKey: config.gPrivateKey
+    clientPrivateKey: config.gPrivateKey,
+    shareEmail: config.shareEmail
   });
   if (event.schedule) {
     // 1. LAMBDA EVENT TRIGGER: (event.schedule) -- it's a cron with a schedule name that will decide where to message
@@ -158,7 +159,7 @@ async function handleSlackEvent(ms, bodyJSON) {
           console.log('addSheet ERROR', err);
           await slack.chat.postMessage({
             channel: evt.channel,
-            text: `There was an error either accessing or adding your sheet: ${err.message}\nMake sure your google sheet is shared with ${config.clientEmail}.\nMake sure the first column is a date, and make sure cell B1 is the template for your message.`
+            text: `There was an error either accessing or adding your sheet: ${err.message}\nMake sure your google sheet is shared with ${config.shareEmail || config.clientEmail}.\nMake sure the first column is a date, and make sure cell B1 is the template for your message.`
           });
         }
       }
@@ -191,7 +192,8 @@ async function handleDebugWeb(ms, qs) {
       spreadsheetUrl: qs.sheetUrl,
       clientEmail: config.clientEmail,
       clientPrivateKey: config.gPrivateKey,
-      userMap: ms.users
+      userMap: ms.users,
+      shareEmail: config.shareEmail
     });
     const sbMessage = await sb.maybeMessage({ algorithm: qs.algorithm || "first_row" });
     if (sbMessage && qs.c) {
@@ -214,7 +216,8 @@ function testRun() {
     const ms = new MetaSheet({
       spreadsheetId: config.spreadsheetId,
       clientEmail: config.clientEmail,
-      clientPrivateKey: config.gPrivateKey
+      clientPrivateKey: config.gPrivateKey,
+      shareEmail: config.shareEmail
     });
     if (process.env.TEST == 'cron') {
       handleCronTrigger(ms, { schedule: "morning_9amET" });

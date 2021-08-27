@@ -100,13 +100,15 @@ class SheetBot {
     clientEmail,
     clientPrivateKey,
     userMap,
-    sheetData
+    sheetData,
+    shareEmail
   }) {
     const auth = clientAuth || new JWT(
       clientEmail,
       null,
       clientPrivateKey,
-      ['https://www.googleapis.com/auth/spreadsheets.readonly', 'https://www.googleapis.com/auth/drive']
+      ['https://www.googleapis.com/auth/spreadsheets.readonly', 'https://www.googleapis.com/auth/drive'],
+      shareEmail
     );
     this.c = google.sheets({version: 'v4', auth});
 

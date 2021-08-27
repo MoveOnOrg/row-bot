@@ -20,13 +20,15 @@ class MetaSheet {
   constructor({ 
     spreadsheetId,
     clientEmail,
-    clientPrivateKey
+    clientPrivateKey,
+    shareEmail
   }) {
     const auth = new JWT(
       clientEmail,
       null,
       clientPrivateKey,
-      ['https://www.googleapis.com/auth/spreadsheets']
+      ['https://www.googleapis.com/auth/spreadsheets'],
+      shareEmail
     );
 
     this.c = google.sheets({version: 'v4', auth});
@@ -34,7 +36,8 @@ class MetaSheet {
       clientEmail,
       null,
       clientPrivateKey,
-      ['https://www.googleapis.com/auth/spreadsheets.readonly', 'https://www.googleapis.com/auth/drive']
+      ['https://www.googleapis.com/auth/spreadsheets.readonly', 'https://www.googleapis.com/auth/drive'],
+      shareEmail
     );
 
     this.spreadsheetId = spreadsheetId;
