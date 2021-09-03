@@ -26,7 +26,7 @@ function todayMidnight(date) {
 }
 
 const algorithms = {
-  'first_row': (rows, filter) => {
+  'first_row': (rows, filter, date) => {
     // first non-blank
     for (i=0; i < rows.length; i++) {
       if (rows[i].length && filter(rows[i])) {
@@ -34,9 +34,9 @@ const algorithms = {
       }
     }
   },
-  'date_match': (rows, filter) => {
+  'date_match': (rows, filter, date) => {
     // epoch time in days: same as "SERIAL_NUMBER" from google date format
-    const today = todayMidnight();
+    const today = todayMidnight(date);
     for (i=0; i < rows.length; i++) {
       if (filter(rows[i])) {
         const date = sheetsToJSDate(rows[i][0]);
@@ -47,10 +47,23 @@ const algorithms = {
     }
     return null;
   },
-  'date_most_recent': (rows, filter) => {
+  'date_match_with_row_contents': (rows, filter, date) => {
+    // epoch time in days: same as "SERIAL_NUMBER" from google date format
+    const today = todayMidnight(date);
+    for (i=0; i < rows.length; i++) {
+      if (filter(rows[i])) {
+        const date = sheetsToJSDate(rows[i][0]);
+        if (date == today && rows[i].length > 1 && rows[i][1]) {
+          return rows[i];
+        }
+      }
+    }
+    return null;
+  },
+  'date_most_recent': (rows, filter, date) => {
     // assuming the first column is full of dates in ascending order,
     // get the most recent row
-    const today = todayMidnight();
+    const today = todayMidnight(date);
     for (i=0; i < rows.length; i++) {
       if (rows[i][0]) {
         const date = sheetsToJSDate(rows[i][0]);
@@ -67,8 +80,8 @@ const algorithms = {
     }
     return null;
   },
-  'tomorrow_reminder': (rows, filter) => {
-    const tomorrow = todayMidnight(Number(new Date()) + (86400 * 1000));
+  'tomorrow_reminder': (rows, filter, date) => {
+    const tomorrow = todayMidnight(Number(date) + (86400 * 1000));
     for (i=0; i < rows.length; i++) {
       if (filter(rows[i])) {
         const date = sheetsToJSDate(rows[i][0]);
@@ -79,10 +92,10 @@ const algorithms = {
     }
     return null;
   },
-  'weekdays_after_topdate': (rows, filter) => {
+  'weekdays_after_topdate': (rows, filter, date) => {
     // get the date from the first row, then just count each weekday
     const firstDate = sheetsToJSDate(rows[0][0]);
-    const today = todayMidnight();
+    const today = todayMidnight(date);
     const daysSince = (today - firstDate) / (86400 * 1000);
     const weeksSince = parseInt(daysSince / 7);
     const rowIndex = (weeksSince * 5) + (daysSince % 7);
@@ -123,7 +136,7 @@ class SheetBot {
     }
   }
 
-  async maybeMessage({ algorithm }) {
+  async maybeMessage({ algorithm, fakedate }) {
     const data = await this.getData();
     const message = this.customCellMessage || data[0][1];
     const HEADERROWS = 2;
@@ -134,7 +147,11 @@ class SheetBot {
           : (row => row[0]);
     if (data.length > HEADERROWS) {
       const row = (algorithms[algorithm] ||
-                   algorithms["date_most_recent"])(rows, filter || (row => row[0]));
+                   algorithms["date_most_recent"])(
+        rows,
+        filter || (row => row[0]),
+        fakedate ? new Date(fakedate) : new Date()
+      );
       if (row && row.length) {
         console.log('maybeMessage', row, this.spreadsheetId, this.gid);
         return this.formatMessage(message, row);

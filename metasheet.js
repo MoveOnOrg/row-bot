@@ -163,7 +163,7 @@ class MetaSheet {
           userCreated: row[9],
           row: i
         };
-        if (!schedule || schedule == sheetData.schedule) {
+        if ((!schedule || schedule == sheetData.schedule) && sheetData.status != "OFF") {
           sheetBots.push(sheetData);
         }
       });

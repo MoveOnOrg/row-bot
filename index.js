@@ -82,7 +82,8 @@ async function handleCronTrigger(ms, event) {
           userMap: ms.users
         });
         return sb.maybeMessage({
-          algorithm: sheetData.algorithm
+          algorithm: sheetData.algorithm,
+          fakedate: event.fakedate
         });
       })
     );
@@ -195,7 +196,10 @@ async function handleDebugWeb(ms, qs) {
       userMap: ms.users,
       shareEmail: config.shareEmail
     });
-    const sbMessage = await sb.maybeMessage({ algorithm: qs.algorithm || "first_row" });
+    const sbMessage = await sb.maybeMessage({
+      algorithm: qs.algorithm || "first_row",
+      fakedate: qs.date
+    });
     if (sbMessage && qs.c) {
       await slack.chat.postMessage({
         text: sbMessage,
@@ -204,7 +208,7 @@ async function handleDebugWeb(ms, qs) {
     }
     return jres({ message: sbMessage }); // INSECURE
   } else if (qs.schedule) {
-    await handleCronTrigger(ms, { schedule: qs.schedule});
+    await handleCronTrigger(ms, { schedule: qs.schedule, fakedate: qs.date });
   }
   return jres({
     "message": "Hello from Lambda!"
