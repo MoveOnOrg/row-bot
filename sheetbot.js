@@ -162,7 +162,7 @@ class SheetBot {
 
   getDisplayName(name) {
     if(name) {
-      var slackId = this.userMap[name.replace(/^\@/,'').trim().toLowerCase()];
+      var slackId = this.userMap[String(name).replace(/^\@/,'').trim().toLowerCase()];
       if(slackId) {
         return "<@" + slackId + ">";
       }
