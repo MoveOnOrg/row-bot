@@ -160,7 +160,7 @@ async function handleSlackEvent(ms, bodyJSON) {
           console.log('addSheet ERROR', err);
           await slack.chat.postMessage({
             channel: evt.channel,
-            text: `There was an error either accessing or adding your sheet: ${err.message}\nMake sure your google sheet is shared with ${config.shareEmail || config.clientEmail}.\nMake sure the first column is a date, and make sure cell B1 is the template for your message.`
+            text: `There was an error either accessing or adding your sheet: ${err.name}: ${err.message}\nMake sure your google sheet is shared with ${config.shareEmail || config.clientEmail}.\nMake sure the first column is a date, and make sure cell B1 is the template for your message.`
           });
         }
       }
