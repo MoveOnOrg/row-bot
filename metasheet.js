@@ -2,16 +2,37 @@ const {JWT} = require('google-auth-library');
 const {google} = require('googleapis');
 
 const gapi = async (googleObj, call, args) => {
+  /**
+   * Google API availability is not very reliable. This function retries
+   * connecting to the API up to 5 times following a similar strategy posted
+   * here:
+   * https://stackoverflow.com/questions/42552925/the-service-is-currently-unavailable-google-api
+   */
+  let apiCallNumOfAttempts = 5;
+  let apiCallAttempts = 0;
+  let apiCallSleep = 1;
+
   return new Promise(
     (resolve, reject) => {
-      googleObj[call](args, (err, res) => {
-        if (err) {
-          console.log('The API returned an error: ' + err);
-          reject('The API returned an error: ' + err);
-          return;
-        }
-        resolve(res);
-      });
+      getGoogleObj();
+
+      function getGoogleObj() {
+        googleObj[call](args, (err, res) => {
+          if (err) {
+            if(apiCallAttempts < apiCallNumOfAttempts) {
+              console.log('The API returned an error: ' + err + '. Retrying...');
+              setTimeout(getGoogleObj, apiCallSleep * 1000);
+              apiCallAttempts++;
+              apiCallSleep *= 2;
+            } else {
+              console.log('The API returned an error: ' + err);
+              reject('The API returned an error: ' + err);
+            }
+            return;
+          }
+          resolve(res);
+        });        
+      }
     }
   );
 }
