@@ -26,7 +26,8 @@ const gapi = async (googleObj, call, args) => {
               apiCallSleep *= 2;
             } else {
               console.log('The API returned an error: ' + err);
-              reject('The API returned an error: ' + err);
+              console.log('Could not connect to spreadsheetId: ', args.spreadsheetId, '. To resolve, check that the sheet exists, that it is shared appropriately, and that Google Sheets status is available.');
+              reject('The API returned an error for spreadsheet ' + args.spreadsheetId + ': ' + err);
             }
             return;
           }

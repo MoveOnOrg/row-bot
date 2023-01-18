@@ -70,36 +70,55 @@ async function handleCronTrigger(ms, event) {
   // 1.a: get the sheets connected to the schedule that is triggered now
   const sheetbots = await ms.getSheets({ schedule: event.schedule });
   let messages = [];
-  if (sheetbots.length) {
-    // 1.b: get the user-SlackUserId mapping from the metasheet (used for @ references)
-    await ms.loadUserMapping();
-    // 1.c: for each sheet that represents a sheetbot, see if a message should be sent
-    messages = await Promise.all(
-      sheetbots.map(sheetData => {
-        const sb = new SheetBot({
-          sheetData,
-          clientAuth: ms.sheetbotAuth,
-          userMap: ms.users
-        });
-        return sb.maybeMessage({
-          algorithm: sheetData.algorithm,
-          fakedate: event.fakedate
-        });
-      })
-    );
+
+  if (!sheetbots.length) {
+    return jres({ sheetbots, messages });
+  }
+
+  // TODO: Update these comments per changes
+
+  // 1.b: get the user-SlackUserId mapping from the metasheet (used for @ references)
+  await ms.loadUserMapping();
+  // 1.c: for each sheet that represents a sheetbot, see if a message should be sent
+  Promise.allSettled(
+    sheetbots.map(sheetData => {
+      const sb = new SheetBot({
+        sheetData,
+        clientAuth: ms.sheetbotAuth,
+        userMap: ms.users
+      });
+      return sb.maybeMessage({
+        algorithm: sheetData.algorithm,
+        fakedate: event.fakedate
+      });
+    })
+  ).then((results) => {
+    let messages = results.filter(attempt => attempt.status==="fulfilled");
+    let failed_messages = results.filter(attempt => attempt.status==="rejected");
+
+    console.log(messages);
+    console.log(failed_messages);
 
     // 1.d: for each message response, if there's something, then send it to the right channel
     for (let i=0; i<messages.length; i++) {
-      const text = messages[i];
+      const text = messages[i]["value"];
       if (text) {
-        await slack.chat.postMessage({
-          text,
-          channel: sheetbots[i].channelId
-        })
+        console.log(text);
+
+        // TODO: Continue here. Cannot use await
+        // await slack.chat.postMessage({
+        //   text,
+        //   channel: sheetbots[i].channelId
+        // })
       }
     }
-  }
-  return jres({ sheetbots, messages });
+
+    for (let i=0; i<failed_messages.length; i++) {
+      console.error(failed_messages[i]["reason"]);
+    }
+
+    return jres({ sheetbots, messages });
+  });
 }
 
 async function invokeAsyncSlackProcessor(bodyJSON) {
