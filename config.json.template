@@ -1,8 +1,10 @@
 {
+  "gKeyId": "",      // optional: google service key id
   "gPrivateKey": "", // required: google service key
   "clientEmail": "", // required: google service account
   "spreadsheetId": "", // required: spreadsheet id of the meta sheet that row-bot pulls from
   "testSpreadsheetId": "", // optional: provide a spreadsheet for testing
   "slackSigningSecret": "", // required: slack service key
   "slackBotUserOAuthToken": "xoxb-REPLACE-ME" // required: slack service key
+  "shareEmail": "",         // required: email to share the google sheet with so that it can read/write to the sheet
 }
