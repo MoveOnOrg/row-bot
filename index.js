@@ -218,7 +218,7 @@ async function handleDebugWeb(ms, qs) {
 function testRun() {
   if (process.env.TEST) {
     const ms = new MetaSheet({
-      spreadsheetId: config.spreadsheetId,
+      spreadsheetId: config.testSpreadsheetId ? config.testSpreadsheetId : config.spreadsheetId,
       clientEmail: config.clientEmail,
       clientPrivateKey: config.gPrivateKey,
       shareEmail: config.shareEmail
