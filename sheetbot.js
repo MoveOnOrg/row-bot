@@ -175,9 +175,9 @@ class SheetBot {
       );
 
       if (row && row.length) {
-        row.forEach((cell, index) => typeof cell === 'number' ? row[index] = this.serialNumberToDate(cell) : '')
-        console.log('maybeMessage', row, this.spreadsheetId, this.gid);
-        return this.formatMessage(message, row);
+        let rowWithDatesChanged = row.map((cell) => typeof cell === 'number' ? this.serialNumberToDate(cell) : cell)
+        console.log('maybeMessage', rowWithDatesChanged, this.spreadsheetId, this.gid);
+        return this.formatMessage(message, rowWithDatesChanged);
       }
     }
     return null
@@ -188,7 +188,6 @@ class SheetBot {
     let date = new Date(Date.UTC(1899, 11, 30 + serialNumber));
     let month = date.getUTCMonth() + 1; //months from 1-12
     let day = date.getUTCDate();
-    let year = date.getUTCFullYear();
 
     return month + "/" + day;
   }
