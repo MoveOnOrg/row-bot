@@ -173,12 +173,24 @@ class SheetBot {
         filter || (row => row[0]),
         fakedate ? new Date(fakedate) : new Date()
       );
+
       if (row && row.length) {
+        row.forEach((cell, index) => typeof cell === 'number' ? row[index] = this.serialNumberToDate(cell) : '')
         console.log('maybeMessage', row, this.spreadsheetId, this.gid);
         return this.formatMessage(message, row);
       }
     }
     return null
+  }
+
+  serialNumberToDate(serialNumber) {
+    // handle the serial number
+    let date = new Date(Date.UTC(1899, 11, 30 + serialNumber));
+    let month = date.getUTCMonth() + 1; //months from 1-12
+    let day = date.getUTCDate();
+    let year = date.getUTCFullYear();
+
+    return month + "/" + day;
   }
 
   getDisplayName(name) {
