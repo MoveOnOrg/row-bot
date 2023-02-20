@@ -37,15 +37,6 @@ const gapi = async (googleObj, call, args) => {
   );
 }
 
-function sheetsToJSDate(sheetsDate) {
-  // Google has a weird date model that is off from JS's getTime() by 25569 days
-  return Number(new Date((Number(sheetsDate) - 25569) * 86400 * 1000));
-}
-
-function todayMidnight(date) {
-  return Number(new Date(1000 * 86400 * parseInt(Number(date || new Date())/ (86400 * 1000))));
-}
-
 const algorithms = {
   'first_row': (rows, filter, date) => {
     // first non-blank
@@ -57,10 +48,10 @@ const algorithms = {
   },
   'date_match': (rows, filter, date) => {
     // epoch time in days: same as "SERIAL_NUMBER" from google date format
-    const today = todayMidnight(date);
+    const today = (date ? new Date(date) : new Date()).toDateString();
     for (i=0; i < rows.length; i++) {
       if (filter(rows[i])) {
-        const date = sheetsToJSDate(rows[i][0]);
+        const date = (new Date(rows[i][0])).toDateString();
         if (date == today) {
           return rows[i];
         }
@@ -70,10 +61,10 @@ const algorithms = {
   },
   'date_match_with_row_contents': (rows, filter, date) => {
     // epoch time in days: same as "SERIAL_NUMBER" from google date format
-    const today = todayMidnight(date);
+    const today = (date ? new Date(date) : new Date()).toDateString();
     for (i=0; i < rows.length; i++) {
       if (filter(rows[i])) {
-        const date = sheetsToJSDate(rows[i][0]);
+        const date = (new Date(rows[i][0])).toDateString();
         if (date == today && rows[i].length > 1 && rows[i][1]) {
           return rows[i];
         }
@@ -84,10 +75,10 @@ const algorithms = {
   'date_most_recent': (rows, filter, date) => {
     // assuming the first column is full of dates in ascending order,
     // get the most recent row
-    const today = todayMidnight(date);
+    const today = (date ? new Date(date) : new Date()).toDateString();
     for (i=0; i < rows.length; i++) {
       if (rows[i][0]) {
-        const date = sheetsToJSDate(rows[i][0]);
+        const date = (new Date(rows[i][0])).toDateString();
         if (date == today && filter(rows[i])) {
           return rows[i];
         } else if (date > today) {
@@ -102,11 +93,12 @@ const algorithms = {
     return null;
   },
   'tomorrow_reminder': (rows, filter, date) => {
-    const tomorrow = todayMidnight(Number(date) + (86400 * 1000));
+    const tomorrow = (date ? new Date(date) : new Date());
+    tomorrow.setDate(tomorrow.getDate() + 1);
     for (i=0; i < rows.length; i++) {
       if (filter(rows[i])) {
-        const date = sheetsToJSDate(rows[i][0]);
-        if (date == tomorrow) {
+        const date = (new Date(rows[i][0])).toDateString();
+        if (date == tomorrow.toDateString()) {
           return rows[i];
         }
       }
@@ -115,9 +107,9 @@ const algorithms = {
   },
   'weekdays_after_topdate': (rows, filter, date) => {
     // get the date from the first row, then just count each weekday
-    const firstDate = sheetsToJSDate(rows[0][0]);
-    const today = todayMidnight(date);
-    const daysSince = (today - firstDate) / (86400 * 1000);
+    const firstDate = (new Date(rows[0][0]));
+    const today = (date ? new Date(date) : new Date());
+    const daysSince = Math.ceil((today - firstDate) / (1000 * 60 * 60 * 24));
     const weeksSince = parseInt(daysSince / 7);
     const rowIndex = (weeksSince * 5) + (daysSince % 7);
     if (rowIndex < rows.length) {
@@ -209,8 +201,6 @@ class SheetBot {
     const resp = await gapi(this.c.spreadsheets.values, 'batchGetByDataFilter', {
       spreadsheetId: this.spreadsheetId,
       majorDimension: 'ROWS',
-      dateTimeRenderOption: 'SERIAL_NUMBER', // epoch time in days
-      valueRenderOption: 'UNFORMATTED_VALUE', // needed for dates annoyingly -- not very orthogonal
       resource: {
         dataFilters: [
           {
