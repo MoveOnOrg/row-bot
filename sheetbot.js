@@ -107,8 +107,13 @@ const algorithms = {
   },
   'weekdays_after_topdate': (rows, filter, date) => {
     // get the date from the first row, then just count each weekday
-    const firstDate = (new Date(rows[0][0]));
-    const today = (date ? new Date(date) : new Date());
+    let firstDate = new Date(rows[0][0]);
+    let today = date ? new Date(date) : new Date();
+
+    // Convert to UTC and zero time to do calculations correctly
+    firstDate = Date.UTC(firstDate.getFullYear(), firstDate.getMonth(), firstDate.getDate(), 0, 0, 0, 0);
+    today = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0, 0);
+
     const daysSince = Math.ceil((today - firstDate) / (1000 * 60 * 60 * 24));
     const weeksSince = parseInt(daysSince / 7);
     const rowIndex = (weeksSince * 5) + (daysSince % 7);
