@@ -81,7 +81,7 @@ const algorithms = {
         const date = (new Date(rows[i][0])).toDateString();
         if (date == today && filter(rows[i])) {
           return rows[i];
-        } else if (date > today) {
+        } else if (new Date(date) > new Date(today)) {
           if (i && filter(rows[i-1])) {
             return rows[i-1];
           } else {
