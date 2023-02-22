@@ -33,7 +33,7 @@
   "scripts": {
     "deploy": "claudia create --region us-west-1 --handler index.handler --deploy-proxy-api --timeout 900;",
     "destroy": "claudia destroy",
-    "test": "claudia test-lambda",
+    "test": "claudia test-lambda --event test-event.json",
     "update": "claudia update"
   },
   "files": [
