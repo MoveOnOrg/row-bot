@@ -179,14 +179,27 @@ class SheetBot {
   }
 
   getDisplayName(name) {
-    if(name) {
-      var slackId = this.userMap[String(name).replace(/^\@/,'').trim().toLowerCase()];
-      if(slackId) {
-        return "<@" + slackId + ">";
+    // Allow multiple names to be specified, separated by the words
+    // "and", "or", or any of the following characters: , ; & +
+    const names = name.split(/[,;&+]|\sand\s|\sor\s/);
+    let displayNames = [];
+    let nameColumn = false;
+    if (names.length) {
+      for (i=0; i < names.length; i++) {
+        if (names[i]) {
+          const slackId = this.userMap[String(names[i]).replace(/^\@/,'').trim().toLowerCase()];
+          if (slackId) {
+            nameColumn = true;
+            displayNames.push("<@" + slackId + ">");
+          }
+        }
       }
-      return name;
     }
-    return "_";
+    else {
+      return "_";
+    }
+    // If this column isn't used for names, return the original value.
+    return nameColumn ? displayNames.join(', ') : name;
   }
 
   formatMessage(text, row) {
