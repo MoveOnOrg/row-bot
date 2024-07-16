@@ -181,13 +181,14 @@ class SheetBot {
   getDisplayName(name) {
     // Allow multiple names to be specified, separated by the words
     // "and", "or", or any of the following characters: , ; & +
-    const names = name.split(/[,;&+]|\s+and\s+|\s+or\s+/);
+    const names = name.split(/[,;&+]|\sand\s|\sor\s/);
     let displayNames = [];
     let nameColumn = false;
     if (names.length) {
       for (i=0; i < names.length; i++) {
-        if (names[i]) {
-          const slackId = this.userMap[String(names[i]).replace(/^@/,'').trim().toLowerCase()];
+        const trimmedName = names[i].trim();
+        if (trimmedName) {
+          const slackId = this.userMap[String(trimmedName).replace(/^@/,'').toLowerCase()];
           if (slackId) {
             nameColumn = true;
             displayNames.push("<@" + slackId + ">");
