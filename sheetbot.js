@@ -145,8 +145,8 @@ class SheetBot {
 
     this.userMap = userMap || {};
     this.sheetData = sheetData;
-    this.bColumnFilter = sheetData && sheetData.bColumnFilter;
-    this.spreadsheetUrl = spreadsheetUrl || (sheetData && sheetData.spreadsheetUrl);
+    this.bColumnFilter = sheetData?.bColumnFilter;
+    this.spreadsheetUrl = spreadsheetUrl || sheetData?.spreadsheetUrl;
     this.spreadsheetId = this.spreadsheetUrl.match(/\/d\/([^/]+)/)[1];
     const subsheet = this.spreadsheetUrl.match(/gid=(\d+)/);
     if (subsheet) {
@@ -170,7 +170,7 @@ class SheetBot {
         filter || (row => row[0]),
         fakedate ? new Date(fakedate) : new Date()
       );
-      if (row && row.length) {
+      if (row?.length) {
         console.log('maybeMessage', row, this.spreadsheetId, this.gid);
         return this.formatMessage(message, row);
       }
@@ -234,7 +234,7 @@ class SheetBot {
         ],
       }
     });
-    if (this.sheetData && this.sheetData.customMessageCell) {
+    if (this.sheetData?.customMessageCell) {
       const messageCellData = await gapi(this.c.spreadsheets.values, 'get', {
         spreadsheetId: this.spreadsheetId,
         majorDimension: 'ROWS',
@@ -246,8 +246,7 @@ class SheetBot {
     }
     // console.log('getData', JSON.stringify(resp, null, 2));
     // talk about burying the data!
-    return (resp.data &&
-            resp.data.valueRanges.length &&
+    return (resp.data?.valueRanges.length &&
             resp.data.valueRanges[0].valueRange.values);
   }
 
