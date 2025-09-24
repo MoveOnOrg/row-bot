@@ -40,7 +40,7 @@ const gapi = async (googleObj, call, args) => {
 const algorithms = {
   'first_row': (rows, filter, date) => {
     // first non-blank
-    for (i=0; i < rows.length; i++) {
+    for (let i=0; i < rows.length; i++) {
       if (rows[i].length && filter(rows[i])) {
         return rows[i];
       }
@@ -49,7 +49,7 @@ const algorithms = {
   'date_match': (rows, filter, date) => {
     // epoch time in days: same as "SERIAL_NUMBER" from google date format
     const today = (date ? new Date(date) : new Date()).toDateString();
-    for (i=0; i < rows.length; i++) {
+    for (let i=0; i < rows.length; i++) {
       if (filter(rows[i])) {
         const date = (new Date(rows[i][0])).toDateString();
         if (date == today) {
@@ -62,7 +62,7 @@ const algorithms = {
   'date_match_with_row_contents': (rows, filter, date) => {
     // epoch time in days: same as "SERIAL_NUMBER" from google date format
     const today = (date ? new Date(date) : new Date()).toDateString();
-    for (i=0; i < rows.length; i++) {
+    for (let i=0; i < rows.length; i++) {
       if (filter(rows[i])) {
         const date = (new Date(rows[i][0])).toDateString();
         if (date == today && rows[i].length > 1 && rows[i][1]) {
@@ -76,7 +76,7 @@ const algorithms = {
     // assuming the first column is full of dates in ascending order,
     // get the most recent row
     const today = (date ? new Date(date) : new Date()).toDateString();
-    for (i=0; i < rows.length; i++) {
+    for (let i=0; i < rows.length; i++) {
       if (rows[i][0]) {
         const date = (new Date(rows[i][0])).toDateString();
         if (date == today && filter(rows[i])) {
@@ -95,7 +95,7 @@ const algorithms = {
   'tomorrow_reminder': (rows, filter, date) => {
     const tomorrow = (date ? new Date(date) : new Date());
     tomorrow.setDate(tomorrow.getDate() + 1);
-    for (i=0; i < rows.length; i++) {
+    for (let i=0; i < rows.length; i++) {
       if (filter(rows[i])) {
         const date = (new Date(rows[i][0])).toDateString();
         if (date == tomorrow.toDateString()) {
@@ -185,7 +185,7 @@ class SheetBot {
     let displayNames = [];
     let nameColumn = false;
     if (names.length) {
-      for (i=0; i < names.length; i++) {
+      for (let i=0; i < names.length; i++) {
         const trimmedName = names[i].trim();
         if (trimmedName) {
           const slackId = this.userMap[String(trimmedName).replace(/^@/,'').toLowerCase()];
